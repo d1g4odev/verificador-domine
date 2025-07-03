@@ -402,11 +402,15 @@ class DomineVerificador {
         // Remove o 55 para exibição
         cleaned = cleaned.substring(2);
         
-        // Formata com hífen
-        if (cleaned.length === 9) { // Número sem 9º dígito
-            return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
-        } else { // Número com 9º dígito
-            return cleaned.replace(/(\d{5})(\d{4})/, '$1-$2');
+        // Pega DDD e número
+        const ddd = cleaned.substring(0, 2);
+        const rest = cleaned.substring(2);
+        
+        // Formata como (xx) 9xxxx-xxxx
+        if (rest.length === 8) { // Número sem 9
+            return `(${ddd}) 9${rest.substring(0, 4)}-${rest.substring(4)}`;
+        } else { // Número com 9
+            return `(${ddd}) ${rest.substring(0, 5)}-${rest.substring(5)}`;
         }
     }
     
@@ -428,11 +432,11 @@ class DomineVerificador {
             const warningMessage = `🚨 O número **${displayNumber}** NÃO é da equipe oficial da Domine.
 
 🔴 **Só confiem nesses números oficiais:**
-• 55 99999-4667
-• 55 99927-5228  
-• 54 99632-1933
-• 55 99686-9527
-• 53 3030-1955
+• (55) 99999-4667
+• (55) 99927-5228  
+• (54) 99632-1933
+• (55) 99686-9527
+• (53) 3030-1955
 
 💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**
 
