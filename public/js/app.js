@@ -371,22 +371,41 @@ class DomineVerificador {
     }
 
     extractNumbers(text) {
-        const phoneRegex = /(\+?\d{1,3}[\s-]?)?\(?\d{2,5}\)?[\s-]?\d{4,5}[\s-]?\d{4}/g;
+        // Regex mais flexível para capturar diferentes formatos de número
+        const phoneRegex = /(\+?55)?[\s-]?([1-9][0-9])[\s-]?([0-9]{4,5})[\s-]?([0-9]{4})/g;
         const matches = text.match(phoneRegex);
-        return matches ? matches.map(num => this.normalizeNumber(num)) : [];
+        
+        if (!matches) return [];
+        
+        return matches.map(num => {
+            // Limpa o número de qualquer caractere não numérico
+            const cleaned = num.replace(/\D/g, '');
+            
+            // Garante que tenha o prefixo 55 se não tiver
+            const withPrefix = cleaned.startsWith('55') ? cleaned : '55' + cleaned;
+            
+            // Formata o número
+            return this.formatNumberForDisplay(withPrefix);
+        });
     }
     
-    normalizeNumber(number) {
+    formatNumberForDisplay(number) {
         // Remove caracteres não numéricos
-        let cleaned = number.replace(/[\s()-]/g, '');
+        let cleaned = number.replace(/\D/g, '');
         
-        // Se não começar com 55, adiciona
-        if (!cleaned.startsWith('55')) {
-            cleaned = '55' + cleaned;
+        // Se começar com 55, remove para exibição
+        if (cleaned.startsWith('55')) {
+            cleaned = cleaned.substring(2);
         }
         
-        // Formata com espaço e hífen
-        return cleaned.replace(/^(\+?55)/, '+55 ').replace(/(\d{4})(\d{4})$/, '$1-$2');
+        // Formata o número para exibição
+        if (cleaned.length === 11) { // Com 9º dígito
+            return `${cleaned.substring(0, 2)} ${cleaned.substring(2, 7)}-${cleaned.substring(7)}`;
+        } else if (cleaned.length === 10) { // Sem 9º dígito
+            return `${cleaned.substring(0, 2)} ${cleaned.substring(2, 6)}-${cleaned.substring(6)}`;
+        }
+        
+        return cleaned;
     }
     
     async verifyNumber(number) {
@@ -469,35 +488,6 @@ class DomineVerificador {
         return number;
     }
     
-    formatNumberForDisplay(number) {
-        // Remove +55 para exibição (todos são números brasileiros)
-        let cleaned = number.replace(/[\s()-]/g, '');
-        
-        // Se começar com +55, remover (só aceitar Brasil)
-        if (cleaned.startsWith('+55')) {
-            cleaned = cleaned.substring(3);
-        }
-        
-        // Garantir que é número brasileiro válido
-        if (!cleaned.startsWith('55') && cleaned.length >= 10) {
-            cleaned = '55' + cleaned;
-        }
-        
-        // Remover 55 do início para exibição limpa
-        if (cleaned.startsWith('55')) {
-            cleaned = cleaned.substring(2);
-        }
-        
-        // Formatar para exibição: 99999-4667
-        if (cleaned.length === 9) {
-            return `${cleaned.substring(0, 5)}-${cleaned.substring(5)}`;
-        } else if (cleaned.length === 8) {
-            return `${cleaned.substring(0, 4)}-${cleaned.substring(4)}`;
-        }
-        
-        return cleaned;
-    }
-    
     async showTyping() {
         const typingDiv = document.createElement('div');
         typingDiv.className = 'message bot';
@@ -572,15 +562,15 @@ class DomineVerificador {
 
     hasValidDDD(number) {
         // Remove caracteres não numéricos
-        const cleanNumber = number.replace(/\D/g, '');
+        let cleanNumber = number.replace(/\D/g, '');
         
         // Se começar com 55, remover para validação do DDD
         if (cleanNumber.startsWith('55')) {
             cleanNumber = cleanNumber.substring(2);
         }
         
-        // Verifica se tem pelo menos 10 dígitos (DDD + número)
-        if (cleanNumber.length < 10) return false;
+        // Verifica se tem pelo menos 8 dígitos (DDD + número)
+        if (cleanNumber.length < 8) return false;
         
         // Pega os dois primeiros dígitos como DDD
         const ddd = cleanNumber.substring(0, 2);
