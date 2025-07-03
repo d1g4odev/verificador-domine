@@ -256,12 +256,15 @@ class DomineVerificador {
             const helpMessage = `⚠️ Por favor, envie o número completo com DDD.
 
 📱 **Exemplos de formato correto:**
-• 55 99999-4667
-• 11 99999-9999
-• 32 99999-9999
+• 55 99999-4667 (DDD 55)
+• 11 99999-9999 (DDD 11)
+• 21 99999-9999 (DDD 21)
 
-❌ **Formato incorreto:**
-• 99999-4667 (falta DDD)`;
+❌ **Formatos incorretos:**
+• 99999-4667 (sem DDD)
+• 999994667 (sem DDD)
+
+⚠️ O DDD é obrigatório para evitar confusão com números iguais de diferentes estados.`;
 
             this.addMessage(helpMessage, 'bot');
             return;
@@ -374,16 +377,16 @@ class DomineVerificador {
         // Remove todos os espaços e caracteres especiais, exceto números
         const cleanText = text.replace(/[^\d]/g, '');
         
-        // Se o número tem menos de 8 dígitos, não é válido
-        if (cleanText.length < 8) return [];
+        // Se começar com 55, remove para validação
+        const withoutCountryCode = cleanText.startsWith('55') ? cleanText.substring(2) : cleanText;
         
-        // Se começar com 55, remove
-        const numberWithoutCountry = cleanText.startsWith('55') ? cleanText.substring(2) : cleanText;
+        // Verifica se tem DDD (pelo menos 2 dígitos no início)
+        if (withoutCountryCode.length < 10 || !/^[1-9][0-9]/.test(withoutCountryCode)) {
+            return [];
+        }
         
         // Adiciona 55 de volta e formata
-        const formattedNumber = '55' + numberWithoutCountry;
-        
-        return [formattedNumber];
+        return ['55' + withoutCountryCode];
     }
     
     formatNumberForDisplay(number) {
@@ -543,23 +546,21 @@ class DomineVerificador {
     }
 
     hasValidDDD(number) {
-        // Remove caracteres não numéricos
-        let cleanNumber = number.replace(/\D/g, '');
+        // Remove tudo que não for número
+        const cleanNumber = number.replace(/[^\d]/g, '');
         
-        // Se começar com 55, remover para validação do DDD
-        if (cleanNumber.startsWith('55')) {
-            cleanNumber = cleanNumber.substring(2);
-        }
+        // Remove 55 se tiver
+        const withoutCountryCode = cleanNumber.startsWith('55') ? cleanNumber.substring(2) : cleanNumber;
         
-        // Verifica se tem pelo menos 8 dígitos (DDD + número)
-        if (cleanNumber.length < 8) return false;
+        // Precisa ter pelo menos 10 dígitos (DDD + número)
+        if (withoutCountryCode.length < 10) return false;
         
-        // Pega os dois primeiros dígitos como DDD
-        const ddd = cleanNumber.substring(0, 2);
+        // Pega o DDD (2 primeiros dígitos)
+        const ddd = withoutCountryCode.substring(0, 2);
         
-        // Verifica se é um DDD válido (10-99)
+        // DDD precisa ser entre 11 e 99
         const dddNum = parseInt(ddd);
-        return dddNum >= 10 && dddNum <= 99;
+        return dddNum >= 11 && dddNum <= 99;
     }
 }
 
