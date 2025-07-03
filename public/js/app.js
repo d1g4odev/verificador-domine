@@ -390,23 +390,23 @@ class DomineVerificador {
         this.addToHistory(displayNumber, isOfficial);
         
         if (isOfficial) {
-            const officialMessage = `✅ O número **${displayNumber}** faz parte da equipe oficial da Domine a Consultoria de Alimentos.
+            const officialMessage = `✅ **${displayNumber}** é um número oficial da Domine.
 
-⚠️ A Domine solicita pagamentos APENAS pelos números oficiais via WhatsApp, mas SEMPRE pela plataforma HOTMART!`;
+⚠️ Pagamentos APENAS via HOTMART!`;
 
             await this.addMessage(officialMessage, 'bot', true);
             
         } else {
-            const warningMessage = `🚨 O número **${displayNumber}** NÃO é da equipe oficial da Domine.
+            const warningMessage = `❌ **${displayNumber}** não é um número oficial.
 
-🔴 **Só confiem nesses números oficiais:**
+✅ Números oficiais:
 • 55 99999-4667
 • 55 99927-5228  
 • 54 99632-1933
 • 55 99686-9527
 • 53 3030-1955
 
-💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
+📱 Suporte: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
 
             await this.addMessage(warningMessage, 'bot');
         }
