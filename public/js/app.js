@@ -406,7 +406,9 @@ class DomineVerificador {
 • 55 99686-9527
 • 53 3030-1955
 
-💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
+💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**
+
+🔒 **Proteja-se:** Se você recebeu pedido de pagamento por um número diferente dos oficiais ou link fora da HOTMART, é golpe! Denuncie e bloqueie o número.`;
 
             await this.addMessage(warningMessage, 'bot');
         }
