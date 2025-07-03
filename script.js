@@ -11,6 +11,31 @@ class DomineVerificador {
         this.chatMessages = document.getElementById('chatMessages');
         this.messageInput = document.getElementById('messageInput');
         this.sendButton = document.getElementById('sendButton');
+        this.inputStatus = document.getElementById('inputStatus');
+        this.validIcon = this.inputStatus.querySelector('.valid-icon');
+        this.invalidIcon = this.inputStatus.querySelector('.invalid-icon');
+        
+        this.historyToggle = document.getElementById('historyToggle');
+        this.historyPanel = document.getElementById('historyPanel');
+        this.historyList = document.getElementById('historyList');
+        
+        // Carregar histórico da sessão
+        this.history = JSON.parse(sessionStorage.getItem('numberHistory') || '[]');
+        
+        // Verificar se está instalado como PWA
+        this.isPWA = window.matchMedia('(display-mode: standalone)').matches;
+        
+        // Registrar para sincronização em background
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.sync.register('syncVerifications');
+            });
+        }
+        
+        // Solicitar permissão para notificações
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
         
         this.init();
     }
@@ -34,6 +59,7 @@ class DomineVerificador {
             if (securityCheck.isValid) {
                 this.messageInput.value = sanitizedText;
             } else {
+                this.showInputStatus(false);
                 this.addMessage('🚨 **Conteúdo colado rejeitado por segurança!**\n\n⚠️ Cole apenas números de telefone para verificação.', 'bot');
             }
         });
@@ -45,11 +71,145 @@ class DomineVerificador {
             if (value !== filtered) {
                 e.target.value = filtered;
             }
+            
+            // Limpar status quando input está vazio
+            if (!e.target.value.trim()) {
+                this.hideInputStatus();
+            }
         });
+        
+        // Limpar status ao focar no input
+        this.messageInput.addEventListener('focus', () => {
+            this.hideInputStatus();
+        });
+        
+        // Toggle do histórico
+        this.historyToggle.addEventListener('click', () => {
+            this.toggleHistory();
+        });
+        
+        // Fechar histórico ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!this.historyPanel.contains(e.target) && 
+                !this.historyToggle.contains(e.target)) {
+                this.historyPanel.classList.remove('show');
+            }
+        });
+        
+        // Renderizar histórico inicial
+        this.renderHistory();
         
         setTimeout(() => {
             this.sendInitialMessage();
         }, 1000);
+    }
+    
+    showInputStatus(isValid) {
+        this.inputStatus.className = 'input-status show ' + (isValid ? 'valid' : 'invalid');
+        this.validIcon.style.display = isValid ? 'block' : 'none';
+        this.invalidIcon.style.display = isValid ? 'none' : 'block';
+        
+        // Atualizar ARIA para leitores de tela
+        const message = isValid ? 
+            'Número verificado: oficial da Domine' : 
+            'Número verificado: não é oficial da Domine';
+            
+        this.inputStatus.setAttribute('aria-label', message);
+        this.announceToScreenReader(message);
+        
+        // Adicionar feedback tátil se disponível
+        if ('vibrate' in navigator) {
+            navigator.vibrate(isValid ? [100] : [100, 100, 100]);
+        }
+    }
+    
+    hideInputStatus() {
+        this.inputStatus.className = 'input-status';
+        this.validIcon.style.display = 'none';
+        this.invalidIcon.style.display = 'none';
+        this.inputStatus.removeAttribute('aria-label');
+    }
+    
+    toggleHistory() {
+        const isExpanded = this.historyPanel.classList.contains('show');
+        this.historyPanel.classList.toggle('show');
+        this.historyToggle.setAttribute('aria-expanded', !isExpanded);
+        
+        if (!isExpanded) {
+            this.renderHistory();
+            // Anunciar para leitores de tela
+            this.announceToScreenReader('Histórico de verificações aberto');
+        } else {
+            this.announceToScreenReader('Histórico de verificações fechado');
+        }
+    }
+    
+    announceToScreenReader(message) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.className = 'visually-hidden';
+        announcement.textContent = message;
+        document.body.appendChild(announcement);
+        
+        // Remover após a leitura
+        setTimeout(() => {
+            document.body.removeChild(announcement);
+        }, 1000);
+    }
+    
+    addToHistory(number, isOfficial) {
+        const now = new Date();
+        const timestamp = now.toLocaleTimeString('pt-BR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        // Adicionar no início do array (mais recente primeiro)
+        this.history.unshift({
+            number,
+            isOfficial,
+            timestamp,
+            date: now.toLocaleDateString('pt-BR')
+        });
+        
+        // Manter apenas últimas 50 verificações
+        if (this.history.length > 50) {
+            this.history.pop();
+        }
+        
+        // Salvar na sessão
+        sessionStorage.setItem('numberHistory', JSON.stringify(this.history));
+        
+        // Atualizar visualização se painel estiver aberto
+        if (this.historyPanel.classList.contains('show')) {
+            this.renderHistory();
+        }
+    }
+    
+    renderHistory() {
+        if (this.history.length === 0) {
+            this.historyList.innerHTML = '<div class="history-empty">Nenhuma verificação realizada ainda.</div>';
+            return;
+        }
+        
+        const html = this.history.map(item => `
+            <div class="history-item ${item.isOfficial ? 'official' : 'unofficial'}" 
+                 role="button" 
+                 tabindex="0"
+                 onclick="this.messageInput.value='${item.number}';this.handleSendMessage();">
+                <div class="history-item-icon">
+                    ${item.isOfficial ? 
+                        '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 3L4.5 8.5L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' :
+                        '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M9 3L3 9M3 3L9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+                    }
+                </div>
+                <span>${item.number}</span>
+                <small style="margin-left: auto; opacity: 0.7;">${item.timestamp}</small>
+            </div>
+        `).join('');
+        
+        this.historyList.innerHTML = html;
     }
     
     async sendInitialMessage() {
@@ -76,6 +236,7 @@ class DomineVerificador {
         // Validação de segurança
         const securityCheck = this.validateInput(message);
         if (!securityCheck.isValid) {
+            this.showInputStatus(false);
             this.addMessage(securityCheck.message, 'bot');
             this.messageInput.value = '';
             return;
@@ -92,6 +253,7 @@ class DomineVerificador {
         const numbers = this.extractNumbers(sanitizedMessage);
         
         if (numbers.length === 0) {
+            this.showInputStatus(false);
             const helpMessage = `⚠️ Aqui apenas verificamos os números para ver se você está seguro ou não.
 
 📱 **Envie somente o número** e iremos te responder!
@@ -108,9 +270,14 @@ class DomineVerificador {
             return;
         }
         
+        let allValid = true;
         for (const number of numbers) {
+            const isValid = this.isOfficialNumber(number);
+            if (!isValid) allValid = false;
             await this.verifyNumber(number);
         }
+        
+        this.showInputStatus(allValid);
     }
     
     validateInput(input) {
@@ -218,11 +385,12 @@ class DomineVerificador {
     
     async verifyNumber(number) {
         const isOfficial = this.isOfficialNumber(number);
+        const displayNumber = this.formatNumberForDisplay(number);
+        
+        // Adicionar ao histórico
+        this.addToHistory(displayNumber, isOfficial);
         
         if (isOfficial) {
-            // Limpar número para exibição (remover +55 se existir)
-            const displayNumber = this.formatNumberForDisplay(number);
-            
             const officialMessage = `✅ O número **${displayNumber}** faz parte da equipe oficial da Domine a Consultoria de Alimentos.
 
 ⚠️ **Mesmo assim, só confie em:**
@@ -232,7 +400,35 @@ class DomineVerificador {
 
 🔒 Sempre mantenha a segurança em primeiro lugar!`;
 
-            this.addMessage(officialMessage, 'bot');
+            await this.addMessage(officialMessage, 'bot', true);
+            
+            // Mensagem extra de segurança após delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const securityReminder = `🛡️ **DICAS DE SEGURANÇA:**
+
+❌ Nunca compartilhe:
+• Dados pessoais
+• Senhas ou códigos
+• Fotos de documentos
+• Comprovantes bancários
+
+💳 **PAGAMENTOS:**
+• SOMENTE pela plataforma HOTMART
+• NUNCA faça PIX direto
+• NUNCA pague por outros meios
+• IGNORE links de checkout externos
+• DESCONFIE de outras plataformas
+
+✅ **Boas práticas:**
+• Verifique sempre o número antes de interagir
+• Não clique em links suspeitos
+• Desconfie de promoções muito vantajosas
+• Salve os números oficiais na sua agenda
+
+⚠️ **ATENÇÃO:** A Domine NUNCA solicita pagamentos por WhatsApp ou fora da HOTMART!`;
+
+            this.addMessage(securityReminder, 'bot');
             
         } else {
             // Limpar número para exibição (remover +55 se existir)
@@ -257,7 +453,39 @@ class DomineVerificador {
 
 💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
 
-            this.addMessage(warningMessage, 'bot');
+            await this.addMessage(warningMessage, 'bot');
+            
+            // Mensagem extra de segurança após delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const fraudAlert = `🚨 **ALERTA DE GOLPES:**
+
+⚠️ Fique atento a tentativas comuns de fraude:
+
+❌ **Sinais de golpe:**
+• Promoções muito abaixo do mercado
+• Pressão para decisão rápida
+• Pedidos de PIX ou pagamento direto
+• Histórias emotivas ou urgentes
+• Links para sites de pagamento
+
+💳 **IMPORTANTE:**
+• A Domine usa APENAS a HOTMART
+• NÃO aceitamos PIX direto
+• NÃO usamos outras plataformas
+• NÃO enviamos links de pagamento
+• TODOS os pagamentos são pela HOTMART
+
+✅ **Como se proteger:**
+• Sempre verifique a fonte
+• Não tome decisões por impulso
+• Consulte os canais oficiais
+• Reporte números suspeitos
+• Pague SOMENTE pela HOTMART
+
+🔒 **Proteja-se:** Se recebeu pedido de pagamento fora da HOTMART, é golpe! Denuncie o número.`;
+
+            this.addMessage(fraudAlert, 'bot');
         }
         
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -360,9 +588,9 @@ class DomineVerificador {
         typingDiv.remove();
     }
     
-    addMessage(text, sender) {
+    addMessage(text, sender, isVerified = false) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}`;
+        messageDiv.className = `message ${sender} ${isVerified ? 'verified' : ''} ${text.includes('NÃO é da equipe oficial') ? 'warning' : ''}`;
         
         const time = new Date().toLocaleTimeString('pt-BR', { 
             hour: '2-digit', 
@@ -377,6 +605,18 @@ class DomineVerificador {
                 <div class="message-time">${time}</div>
             </div>
         `;
+        
+        // Adicionar emoji flutuante para números verificados
+        if (isVerified) {
+            const emojis = ['✅', '🔒', '💫', '🌟'];
+            const floatingEmoji = document.createElement('div');
+            floatingEmoji.className = 'floating-emoji';
+            floatingEmoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            messageDiv.appendChild(floatingEmoji);
+            
+            // Remover emoji após a animação
+            setTimeout(() => floatingEmoji.remove(), 1000);
+        }
         
         this.chatMessages.appendChild(messageDiv);
         this.scrollToBottom();
