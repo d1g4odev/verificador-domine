@@ -255,11 +255,13 @@ class DomineVerificador {
             this.showInputStatus(false);
             const helpMessage = `⚠️ Por favor, envie o número completo com DDD.
 
-📱 **Exemplo de formato correto:**
-• 55 99999-4667 (com DDD)
+📱 **Exemplos de formato correto:**
+• 55 99999-4667
+• 11 99999-9999
+• 32 99999-9999
 
 ❌ **Formato incorreto:**
-• 99999-4667 (sem DDD)`;
+• 99999-4667 (falta DDD)`;
 
             this.addMessage(helpMessage, 'bot');
             return;
@@ -375,7 +377,16 @@ class DomineVerificador {
     }
     
     normalizeNumber(number) {
-        return number.replace(/[\s()-]/g, '').replace(/^(\+?55)/, '+55 ').replace(/(\d{4})(\d{4})$/, '$1-$2');
+        // Remove caracteres não numéricos
+        let cleaned = number.replace(/[\s()-]/g, '');
+        
+        // Se não começar com 55, adiciona
+        if (!cleaned.startsWith('55')) {
+            cleaned = '55' + cleaned;
+        }
+        
+        // Formata com espaço e hífen
+        return cleaned.replace(/^(\+?55)/, '+55 ').replace(/(\d{4})(\d{4})$/, '$1-$2');
     }
     
     async verifyNumber(number) {
@@ -563,8 +574,20 @@ class DomineVerificador {
         // Remove caracteres não numéricos
         const cleanNumber = number.replace(/\D/g, '');
         
-        // Verifica se tem DDD (deve começar com 55 e ter pelo menos 10 dígitos)
-        return cleanNumber.startsWith('55') && cleanNumber.length >= 10;
+        // Se começar com 55, remover para validação do DDD
+        if (cleanNumber.startsWith('55')) {
+            cleanNumber = cleanNumber.substring(2);
+        }
+        
+        // Verifica se tem pelo menos 10 dígitos (DDD + número)
+        if (cleanNumber.length < 10) return false;
+        
+        // Pega os dois primeiros dígitos como DDD
+        const ddd = cleanNumber.substring(0, 2);
+        
+        // Verifica se é um DDD válido (10-99)
+        const dddNum = parseInt(ddd);
+        return dddNum >= 10 && dddNum <= 99;
     }
 }
 
