@@ -256,4 +256,22 @@ body {
     .chat-messages {
         padding-bottom: 70px;
     }
+}
+
+.message-bubble a {
+    color: #128C7E !important;
+    text-decoration: underline;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.message-bubble a:hover {
+    color: #075E54 !important;
+    background: rgba(18, 140, 126, 0.1);
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.message-bubble a:active {
+    transform: scale(0.98);
 } 

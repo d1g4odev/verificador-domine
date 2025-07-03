@@ -1,11 +1,11 @@
 class DomineVerificador {
     constructor() {
         this.officialNumbers = [
-            '+55 9999-4667',
-            '+55 9927-5228', 
-            '+54 99632-1933',
-            '+55 99686-9527',
-            '+53 3030-1955'
+            '55 9999-4667',
+            '55 9927-5228', 
+            '54 99632-1933',
+            '55 99686-9527',
+            '53 3030-1955'
         ];
         
         this.chatMessages = document.getElementById('chatMessages');
@@ -38,7 +38,9 @@ class DomineVerificador {
 ⚠️ **ATENÇÃO IMPORTANTE:**
 ❌ NÃO façam nenhum tipo de compra agora, pois ainda não abrimos os carrinhos!
 📅 Só iremos abrir os carrinhos na **segunda-feira, dia 7**.
-🚫 Não comprem nada antes disso!`;
+🚫 Não comprem nada antes disso!
+
+💬 Para falar com nosso suporte oficial: **[CLIQUE AQUI](https://wa.me/555599994667)**`;
 
         this.addMessage(welcomeMessage, 'bot');
     }
@@ -55,15 +57,17 @@ class DomineVerificador {
         const numbers = this.extractNumbers(message);
         
         if (numbers.length === 0) {
-            const helpMessage = `🤔 Não consegui identificar nenhum número na sua mensagem.
+            const helpMessage = `⚠️ Aqui apenas verificamos os números para ver se você está seguro ou não.
 
-📋 Por favor, envie o número no formato:
-• +55 99999-9999
-• 55 99999-9999  
+📱 **Envie somente o número** e iremos te responder!
+
+📋 Formatos aceitos:
+• 55 99999-9999
+• +55 99999-9999  
 • 99999-9999
 • (99) 99999-9999
 
-💡 Exemplo: +55 99888-1234`;
+💡 Exemplo: 55 99888-1234`;
 
             this.addMessage(helpMessage, 'bot');
             return;
@@ -109,13 +113,15 @@ class DomineVerificador {
 • Não forneça dados pessoais
 
 🔴 **Só confiem nesses números oficiais:**
-• +55 9999-4667
-• +55 9927-5228  
-• +54 99632-1933
-• +55 99686-9527
-• +53 3030-1955
+• 55 9999-4667
+• 55 9927-5228  
+• 54 99632-1933
+• 55 99686-9527
+• 53 3030-1955
 
-⚠️ Se tiver dúvidas, entre em contato apenas pelos números oficiais acima!`;
+⚠️ Se tiver dúvidas, entre em contato apenas pelos números oficiais acima!
+
+💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/555599994667)**`;
 
             this.addMessage(warningMessage, 'bot');
         }
@@ -138,7 +144,7 @@ class DomineVerificador {
         typingDiv.className = 'message bot';
         typingDiv.innerHTML = `
             <div class="typing-indicator">
-                <span>Verificando</span>
+                <span>Digitando</span>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -180,9 +186,11 @@ class DomineVerificador {
     formatMessage(text) {
         return text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*\*\[(.*?)\]\((.*?)\)\*\*/g, '<a href="$2" target="_blank" style="color: #128C7E; font-weight: bold; text-decoration: underline;">$1</a>')
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: #128C7E; text-decoration: underline;">$1</a>')
             .replace(/\n/g, '<br>')
             .replace(/•/g, '•')
-            .replace(/(✅|❌|🚨|⚠️|🔴|🔒|💡|📱|📋|📅|🚫|👋)/g, '<span style="font-size: 16px;">$1</span>');
+            .replace(/(✅|❌|🚨|⚠️|🔴|🔒|💡|📱|📋|📅|🚫|👋|💬)/g, '<span style="font-size: 16px;">$1</span>');
     }
     
     scrollToBottom() {
