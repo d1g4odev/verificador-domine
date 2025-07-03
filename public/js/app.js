@@ -395,8 +395,12 @@ class DomineVerificador {
         const ddd = cleaned.substring(0, 2);
         const phoneNumber = cleaned.substring(2);
         
-        // Formata como (xx) xxxxx-xxxx
-        return `(${ddd}) ${phoneNumber.substring(0, 5)}-${phoneNumber.substring(5)}`;
+        // Formata como (xx) xxxxx-xxxx ou (xx) xxxx-xxxx
+        if (phoneNumber.length === 9) {
+            return `(${ddd}) ${phoneNumber.substring(0, 5)}-${phoneNumber.substring(5)}`;
+        } else {
+            return `(${ddd}) ${phoneNumber.substring(0, 4)}-${phoneNumber.substring(4)}`;
+        }
     }
     
     async verifyNumber(number) {
@@ -435,19 +439,45 @@ class DomineVerificador {
     
     isOfficialNumber(number) {
         // Lista de números oficiais em formato limpo (só números)
-        const officialCleanNumbers = [
-            '559999-4667',  // 55 9999-4667
-            '559927-5228',  // 55 9927-5228
-            '549963-1933',  // 54 9963-1933
-            '559968-9527',  // 55 9968-9527
-            '533030-1955'   // 53 3030-1955
-        ].map(num => num.replace(/[^\d]/g, ''));
+        const officialNumbers = {
+            '55': ['99994667', '99999-4667', '99275228', '99927-5228', '99689527', '99968-9527'], // números do DDD 55
+            '54': ['99631933', '99963-1933'], // números do DDD 54
+            '53': ['30301955'] // números do DDD 53
+        };
         
         // Limpa o número recebido
         const cleanNumber = number.replace(/[^\d]/g, '');
         
-        // Verifica se é um dos números oficiais
-        return officialCleanNumbers.some(official => cleanNumber === official);
+        // Pega DDD e número
+        const ddd = cleanNumber.substring(0, 2);
+        const phoneNumber = cleanNumber.substring(2);
+        
+        // Se não tem o DDD na lista, não é oficial
+        if (!officialNumbers[ddd]) return false;
+        
+        // Verifica se o número (com ou sem 9) está na lista do DDD
+        return officialNumbers[ddd].some(officialNum => {
+            const cleanOfficialNum = officialNum.replace(/[^\d]/g, '');
+            
+            // Verifica match exato
+            if (phoneNumber === cleanOfficialNum) return true;
+            
+            // Se o número tem 9 dígitos (sem o 9 extra)
+            if (phoneNumber.length === 9) {
+                // Adiciona o 9 e compara
+                const withNinth = '9' + phoneNumber;
+                return withNinth === cleanOfficialNum;
+            }
+            
+            // Se o número tem 10 dígitos (com o 9 extra)
+            if (phoneNumber.length === 10 && phoneNumber.startsWith('9')) {
+                // Remove o 9 e compara
+                const withoutNinth = phoneNumber.substring(1);
+                return withoutNinth === cleanOfficialNum;
+            }
+            
+            return false;
+        });
     }
     
     async showTyping() {
