@@ -1,8 +1,8 @@
 class DomineVerificador {
     constructor() {
         this.officialNumbers = [
-            '55 9999-4667',
-            '55 9927-5228', 
+            '55 99999-4667',
+            '55 99927-5228', 
             '54 99632-1933',
             '55 99686-9527',
             '53 3030-1955'
@@ -102,7 +102,7 @@ class DomineVerificador {
 • 99999-9999
 • (99) 99999-9999
 
-💡 Exemplo: 55 99888-1234`;
+💡 Exemplo: 55 99999-4667`;
 
             this.addMessage(helpMessage, 'bot');
             return;
@@ -232,8 +232,8 @@ class DomineVerificador {
 • Não forneça dados pessoais
 
 🔴 **Só confiem nesses números oficiais:**
-• 55 9999-4667
-• 55 9927-5228  
+• 55 99999-4667
+• 55 99927-5228  
 • 54 99632-1933
 • 55 99686-9527
 • 53 3030-1955
@@ -249,13 +249,49 @@ class DomineVerificador {
     }
     
     isOfficialNumber(number) {
-        const cleanNumber = number.replace(/[\s()-]/g, '');
+        const cleanNumber = number.replace(/[\s()-+]/g, '');
+        
         return this.officialNumbers.some(official => {
-            const cleanOfficial = official.replace(/[\s()-]/g, '');
-            return cleanNumber.includes(cleanOfficial.substring(1)) || 
-                   cleanOfficial.includes(cleanNumber) ||
-                   cleanNumber === cleanOfficial;
+            const cleanOfficial = official.replace(/[\s()-+]/g, '');
+            
+            // Verificação exata
+            if (cleanNumber === cleanOfficial) {
+                return true;
+            }
+            
+            // Para números brasileiros (55), verificar com e sem o 9 adicional
+            if (cleanOfficial.startsWith('55') && cleanNumber.startsWith('55')) {
+                const officialWithout9 = this.removeNinthDigit(cleanOfficial);
+                const numberWithout9 = this.removeNinthDigit(cleanNumber);
+                const officialWith9 = this.addNinthDigit(cleanOfficial);
+                const numberWith9 = this.addNinthDigit(cleanNumber);
+                
+                return officialWithout9 === numberWithout9 || 
+                       cleanOfficial === numberWith9 ||
+                       officialWith9 === cleanNumber ||
+                       officialWith9 === numberWith9;
+            }
+            
+            // Para outros países, verificação normal
+            return cleanNumber.includes(cleanOfficial) || 
+                   cleanOfficial.includes(cleanNumber);
         });
+    }
+    
+    removeNinthDigit(number) {
+        // Remove o 9 adicional de números brasileiros: 5599999xxxx -> 559999xxxx
+        if (number.startsWith('55') && number.length >= 11 && number[2] === '9') {
+            return '55' + number.substring(3);
+        }
+        return number;
+    }
+    
+    addNinthDigit(number) {
+        // Adiciona o 9 se não existe: 559999xxxx -> 5599999xxxx  
+        if (number.startsWith('55') && number.length >= 10 && number[2] !== '9') {
+            return '55' + '9' + number.substring(2);
+        }
+        return number;
     }
     
     async showTyping() {

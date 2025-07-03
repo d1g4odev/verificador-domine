@@ -14,11 +14,11 @@ Chatbot que simula uma conversa no WhatsApp para verificar se números de telefo
 
 ## 📋 Números Oficiais da Equipe
 
-- +55 9999-4667
-- +55 9927-5228  
-- +54 99632-1933
-- +55 99686-9527
-- +53 3030-1955
+- 55 99999-4667
+- 55 99927-5228  
+- 54 99632-1933
+- 55 99686-9527
+- 53 3030-1955
 
 ## 🛠️ Como Usar
 
