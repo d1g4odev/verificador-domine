@@ -220,9 +220,8 @@ class DomineVerificador {
 📱 Envie o número abaixo que você acha suspeito para verificarmos se faz parte da nossa equipe oficial.
 
 ⚠️ **ATENÇÃO IMPORTANTE:**
-❌ NÃO façam nenhum tipo de compra agora, pois ainda não abrimos os carrinhos!
-📅 Só iremos abrir os carrinhos na **segunda-feira, dia 7**.
-🚫 Não comprem nada antes disso!
+❌ NÃO façam nenhum tipo de compra agora, pois não abrimos as inscrições!
+📅 Só iremos abrir na **segunda-feira, dia 7**.
 
 💬 Para falar com nosso suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
 
