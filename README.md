@@ -1,99 +1,75 @@
 # Verificador de Números - Domine Consultoria
 
-Sistema de verificação de números oficiais da Domine Consultoria de Alimentos.
+Sistema de verificação de números oficiais da Domine a Consultoria de Alimentos. Este sistema permite verificar se um número de telefone pertence à equipe oficial da Domine.
 
 ## Funcionalidades
 
-- Verificação automática de números oficiais
-- Interface similar ao WhatsApp
-- Reconhecimento inteligente de números em diferentes formatos
-- Alertas de segurança para números não oficiais
-- Histórico de verificações na sessão
-- Totalmente responsivo e focado em mobile
-- Instalável como PWA (Progressive Web App)
+- ✅ Verificação de números oficiais
+- 📱 Interface estilo WhatsApp
+- 🔒 Validações de segurança
+- 📋 Histórico de verificações
+- 📱 Design responsivo
+- ♿ Acessibilidade
+- 🌐 PWA (Progressive Web App)
 
-## Números Oficiais da Equipe
+## Números Oficiais
 
+Os únicos números oficiais da Domine são:
 - 55 99999-4667
-- 55 99927-5228  
+- 55 99927-5228
 - 54 99632-1933
 - 55 99686-9527
 - 53 3030-1955
 
-## Estrutura do Projeto
-
-```
-verificador-domine/
-├── src/
-│   ├── js/
-│   │   └── app.js
-│   ├── css/
-│   │   └── style.css
-│   └── assets/
-│       └── images/
-├── public/
-│   ├── index.html
-│   ├── manifest.json
-│   └── sw.js
-└── docs/
-    └── SECURITY.md
-```
-
-## Como Usar
-
-1. Abra o verificador no navegador
-2. Digite ou cole o número suspeito
-3. Aguarde a verificação automática
-4. Receba o resultado com instruções de segurança
-
-## Formatos de Número Aceitos
-
-- 55 99999-9999 (DDD + número - formato padrão)
-- +55 99999-9999 (também aceito)
-- 99999-9999 (número direto)
-- (55) 99999-9999
-
-**Nota:** Sistema aceita apenas números brasileiros e reconhece automaticamente números com ou sem o 9º dígito.
+⚠️ **IMPORTANTE**: A Domine solicita pagamentos APENAS pelos números oficiais via WhatsApp, mas SEMPRE pela plataforma HOTMART!
 
 ## Tecnologias Utilizadas
 
-- HTML5 semântico
-- CSS3 com Flexbox
-- JavaScript ES6+
-- Design responsivo Mobile-First
-- PWA para instalação
+- HTML5
+- CSS3
+- JavaScript (ES6+)
+- Service Workers (PWA)
+- Local Storage
+- Web Accessibility (ARIA)
 
-## Compatibilidade Mobile
+## Instalação
 
-- Interface otimizada para telas pequenas
-- Controles adaptados para toque
-- Scrolling suave
-- Tipografia legível
-- Performance otimizada
+1. Clone o repositório
+2. Abra o arquivo `public/index.html` em um servidor web
+3. Pronto! O sistema já está funcionando
 
-## Características
+## Desenvolvimento
 
-- Design similar ao WhatsApp
-- Mensagens de segurança detalhadas
-- Validação de números em tempo real
-- Feedback visual imediato
-- Suporte a leitores de tela
+Para desenvolver, você precisará de:
+- Um editor de código (recomendamos VS Code)
+- Um servidor web local (pode usar Live Server do VS Code)
+- Conhecimentos básicos de HTML, CSS e JavaScript
 
-## Performance
+## Estrutura do Projeto
 
-- Carregamento instantâneo
-- Animações otimizadas
-- Cache inteligente
-- Zero dependências externas
+```
+public/
+  ├── assets/
+  │   └── images/
+  │       └── logo.png
+  ├── css/
+  │   └── style.css
+  ├── js/
+  │   └── app.js
+  ├── index.html
+  ├── manifest.json
+  └── sw.js
+```
 
 ## Segurança
 
-- Validação de entrada
-- Sanitização de dados
+O sistema possui várias camadas de segurança:
+- Sanitização de inputs
 - Proteção contra XSS
+- Validação de números
 - Headers de segurança
-- Alertas de golpes
+- Content Security Policy
 
 ## Licença
 
-Proprietário - Domine Consultoria de Alimentos 
+Todos os direitos reservados à Domine a Consultoria de Alimentos. 
