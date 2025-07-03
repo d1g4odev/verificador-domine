@@ -253,9 +253,9 @@ class DomineVerificador {
             const helpMessage = `⚠️ Por favor, envie o número completo com DDD.
 
 📱 **Exemplos de formato correto:**
-• 55 99999-4667 (DDD 55)
-• 11 99999-9999 (DDD 11)
-• 21 99999-9999 (DDD 21)
+• (55) 99999-4667
+• (11) 99999-9999
+• (21) 99999-9999
 
 ❌ **Formatos incorretos:**
 • 99999-4667 (sem DDD)
@@ -267,8 +267,9 @@ class DomineVerificador {
             return;
         }
 
-        // Adiciona a mensagem do usuário
-        this.addMessage(sanitizedMessage, 'user');
+        // Adiciona a mensagem do usuário com o número formatado
+        const formattedNumber = this.formatNumberForDisplay(numbers[0]);
+        this.addMessage(formattedNumber, 'user');
         this.messageInput.value = '';
         
         await this.showTyping();
@@ -386,8 +387,11 @@ class DomineVerificador {
         // Verifica se tem pelo menos 8 dígitos para ser um número válido
         if (withoutCountryCode.length < 8) return [];
         
-        // Adiciona 55 de volta e formata
-        return ['55' + withoutCountryCode];
+        // Adiciona 55 de volta
+        const fullNumber = '55' + withoutCountryCode;
+        
+        // Retorna o número formatado
+        return [fullNumber];
     }
     
     formatNumberForDisplay(number) {
@@ -406,12 +410,8 @@ class DomineVerificador {
         const ddd = cleaned.substring(0, 2);
         const rest = cleaned.substring(2);
         
-        // Formata como (xx) 9xxxx-xxxx
-        if (rest.length === 8) { // Número sem 9
-            return `(${ddd}) 9${rest.substring(0, 4)}-${rest.substring(4)}`;
-        } else { // Número com 9
-            return `(${ddd}) ${rest.substring(0, 5)}-${rest.substring(5)}`;
-        }
+        // Formata como (xx) xxxxx-xxxx
+        return `(${ddd}) ${rest.substring(0, 5)}-${rest.substring(5)}`;
     }
     
     async verifyNumber(number) {
@@ -433,7 +433,7 @@ class DomineVerificador {
 
 🔴 **Só confiem nesses números oficiais:**
 • (55) 99999-4667
-• (55) 99927-5228  
+• (55) 99927-5228
 • (54) 99632-1933
 • (55) 99686-9527
 • (53) 3030-1955
