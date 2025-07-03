@@ -251,19 +251,15 @@ class DomineVerificador {
         
         const numbers = this.extractNumbers(sanitizedMessage);
         
-        if (numbers.length === 0) {
+        if (numbers.length === 0 || !this.hasValidDDD(numbers[0])) {
             this.showInputStatus(false);
-            const helpMessage = `⚠️ Aqui apenas verificamos os números para ver se você está seguro ou não.
+            const helpMessage = `⚠️ Por favor, envie o número completo com DDD.
 
-📱 **Envie somente o número** e iremos te responder!
+📱 **Exemplo de formato correto:**
+• 55 99999-4667 (com DDD)
 
-📋 Formatos aceitos:
-• 55 99999-9999 (DDD + número)
-• +55 99999-9999 (também aceito)
-• 99999-9999
-• (55) 99999-9999
-
-💡 Exemplo: 55 99999-4667`;
+❌ **Formato incorreto:**
+• 99999-4667 (sem DDD)`;
 
             this.addMessage(helpMessage, 'bot');
             return;
@@ -561,6 +557,14 @@ class DomineVerificador {
         setTimeout(() => {
             this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
         }, 100);
+    }
+
+    hasValidDDD(number) {
+        // Remove caracteres não numéricos
+        const cleanNumber = number.replace(/\D/g, '');
+        
+        // Verifica se tem DDD (deve começar com 55 e ter pelo menos 10 dígitos)
+        return cleanNumber.startsWith('55') && cleanNumber.length >= 10;
     }
 }
 
