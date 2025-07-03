@@ -371,41 +371,35 @@ class DomineVerificador {
     }
 
     extractNumbers(text) {
-        // Regex mais flexível para capturar diferentes formatos de número
-        const phoneRegex = /(\+?55)?[\s-]?([1-9][0-9])[\s-]?([0-9]{4,5})[\s-]?([0-9]{4})/g;
-        const matches = text.match(phoneRegex);
+        // Remove todos os espaços e caracteres especiais, exceto números
+        const cleanText = text.replace(/[^\d]/g, '');
         
-        if (!matches) return [];
+        // Se o número tem menos de 8 dígitos, não é válido
+        if (cleanText.length < 8) return [];
         
-        return matches.map(num => {
-            // Limpa o número de qualquer caractere não numérico
-            const cleaned = num.replace(/\D/g, '');
-            
-            // Garante que tenha o prefixo 55 se não tiver
-            const withPrefix = cleaned.startsWith('55') ? cleaned : '55' + cleaned;
-            
-            // Formata o número
-            return this.formatNumberForDisplay(withPrefix);
-        });
+        // Se começar com 55, remove
+        const numberWithoutCountry = cleanText.startsWith('55') ? cleanText.substring(2) : cleanText;
+        
+        // Adiciona 55 de volta e formata
+        const formattedNumber = '55' + numberWithoutCountry;
+        
+        return [formattedNumber];
     }
     
     formatNumberForDisplay(number) {
-        // Remove caracteres não numéricos
-        let cleaned = number.replace(/\D/g, '');
+        // Remove tudo que não for número
+        let cleaned = number.replace(/[^\d]/g, '');
         
-        // Se começar com 55, remove para exibição
-        if (cleaned.startsWith('55')) {
-            cleaned = cleaned.substring(2);
+        // Se não começar com 55, adiciona
+        if (!cleaned.startsWith('55')) {
+            cleaned = '55' + cleaned;
         }
         
-        // Formata o número para exibição
-        if (cleaned.length === 11) { // Com 9º dígito
-            return `${cleaned.substring(0, 2)} ${cleaned.substring(2, 7)}-${cleaned.substring(7)}`;
-        } else if (cleaned.length === 10) { // Sem 9º dígito
-            return `${cleaned.substring(0, 2)} ${cleaned.substring(2, 6)}-${cleaned.substring(6)}`;
-        }
+        // Remove o 55 para exibição
+        cleaned = cleaned.substring(2);
         
-        return cleaned;
+        // Formata com hífen
+        return cleaned.replace(/(\d{5})(\d{4})/, '$1-$2');
     }
     
     async verifyNumber(number) {
@@ -443,49 +437,37 @@ class DomineVerificador {
     }
     
     isOfficialNumber(number) {
-        const cleanNumber = number.replace(/[\s()-+]/g, '');
+        // Lista de números oficiais em formato limpo (só números)
+        const officialCleanNumbers = [
+            '5599999-4667',
+            '5599927-5228', 
+            '5499632-1933',
+            '5599686-9527',
+            '5330301955'
+        ].map(num => num.replace(/[^\d]/g, ''));
         
-        return this.officialNumbers.some(official => {
-            const cleanOfficial = official.replace(/[\s()-+]/g, '');
+        // Limpa o número recebido
+        const cleanNumber = number.replace(/[^\d]/g, '');
+        
+        // Verifica se é um dos números oficiais
+        return officialCleanNumbers.some(official => {
+            // Verifica match exato
+            if (cleanNumber === official) return true;
             
-            // Verificação exata
-            if (cleanNumber === cleanOfficial) {
-                return true;
+            // Se o número oficial não tem o 9º dígito, verifica sem ele
+            if (official.length === 10 && cleanNumber.length === 11) {
+                const numberWithout9 = cleanNumber.substring(0, 4) + cleanNumber.substring(5);
+                return numberWithout9 === official;
             }
             
-            // Para números brasileiros (55), verificar com e sem o 9 adicional
-            if (cleanOfficial.startsWith('55') && cleanNumber.startsWith('55')) {
-                const officialWithout9 = this.removeNinthDigit(cleanOfficial);
-                const numberWithout9 = this.removeNinthDigit(cleanNumber);
-                const officialWith9 = this.addNinthDigit(cleanOfficial);
-                const numberWith9 = this.addNinthDigit(cleanNumber);
-                
-                return officialWithout9 === numberWithout9 || 
-                       cleanOfficial === numberWith9 ||
-                       officialWith9 === cleanNumber ||
-                       officialWith9 === numberWith9;
+            // Se o número oficial tem o 9º dígito, verifica com ele
+            if (official.length === 11 && cleanNumber.length === 10) {
+                const officialWithout9 = official.substring(0, 4) + official.substring(5);
+                return cleanNumber === officialWithout9;
             }
             
-            // Para outros países, verificação normal
-            return cleanNumber.includes(cleanOfficial) || 
-                   cleanOfficial.includes(cleanNumber);
+            return false;
         });
-    }
-    
-    removeNinthDigit(number) {
-        // Remove o 9 adicional de números brasileiros: 5599999xxxx -> 559999xxxx
-        if (number.startsWith('55') && number.length >= 11 && number[2] === '9') {
-            return '55' + number.substring(3);
-        }
-        return number;
-    }
-    
-    addNinthDigit(number) {
-        // Adiciona o 9 se não existe: 559999xxxx -> 5599999xxxx  
-        if (number.startsWith('55') && number.length >= 10 && number[2] !== '9') {
-            return '55' + '9' + number.substring(2);
-        }
-        return number;
     }
     
     async showTyping() {
