@@ -421,10 +421,10 @@ class DomineVerificador {
             const warningMessage = `🚨 O número **${displayNumber}** NÃO é da equipe oficial da Domine.
 
 🔴 **Só confiem nesses números oficiais:**
-• (55) 9999-4667
-• (55) 9927-5228
-• (54) 9963-1933
-• (55) 9968-9527
+• (55) 9999-4667 ou 99999-4667
+• (55) 9927-5228 ou 99927-5228
+• (54) 9632-1933 ou 99632-1933
+• (55) 9686-9527 ou 99686-9527
 • (53) 3030-1955
 
 💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**
@@ -440,9 +440,17 @@ class DomineVerificador {
     isOfficialNumber(number) {
         // Lista de números oficiais em formato limpo (só números)
         const officialNumbers = {
-            '55': ['99994667', '99999-4667', '99275228', '99927-5228', '99689527', '99968-9527'], // números do DDD 55
-            '54': ['99631933', '99963-1933'], // números do DDD 54
-            '53': ['30301955'] // números do DDD 53
+            '55': [
+                '99994667', '999994667',  // 55 9999-4667 ou 99999-4667
+                '99275228', '999275228',  // 55 9927-5228 ou 99927-5228
+                '96869527', '996869527'   // 55 9686-9527 ou 99686-9527
+            ],
+            '54': [
+                '96321933', '996321933'   // 54 9632-1933 ou 99632-1933
+            ],
+            '53': [
+                '30301955'                // 53 3030-1955
+            ]
         };
         
         // Limpa o número recebido
@@ -462,15 +470,15 @@ class DomineVerificador {
             // Verifica match exato
             if (phoneNumber === cleanOfficialNum) return true;
             
-            // Se o número tem 9 dígitos (sem o 9 extra)
-            if (phoneNumber.length === 9) {
+            // Se o número tem 8 dígitos (sem o 9)
+            if (phoneNumber.length === 8) {
                 // Adiciona o 9 e compara
                 const withNinth = '9' + phoneNumber;
                 return withNinth === cleanOfficialNum;
             }
             
-            // Se o número tem 10 dígitos (com o 9 extra)
-            if (phoneNumber.length === 10 && phoneNumber.startsWith('9')) {
+            // Se o número tem 9 dígitos (com o 9)
+            if (phoneNumber.length === 9 && phoneNumber.startsWith('9')) {
                 // Remove o 9 e compara
                 const withoutNinth = phoneNumber.substring(1);
                 return withoutNinth === cleanOfficialNum;
