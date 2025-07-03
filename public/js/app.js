@@ -253,12 +253,12 @@ class DomineVerificador {
             const helpMessage = `⚠️ Por favor, envie o número completo com DDD.
 
 📱 **Exemplos de formato correto:**
-• (55) 99999-4667
 • (11) 99999-9999
 • (21) 99999-9999
+• (51) 99999-9999
 
 ❌ **Formatos incorretos:**
-• 99999-4667 (sem DDD)
+• 99999-9999 (sem DDD)
 • 999994667 (sem DDD)
 
 ⚠️ O DDD é obrigatório para evitar confusão com números iguais de diferentes estados.`;
@@ -381,37 +381,22 @@ class DomineVerificador {
         // Remove todos os espaços e caracteres especiais, exceto números
         const cleanText = text.replace(/[^\d]/g, '');
         
-        // Se começar com 55, remove para validação
-        const withoutCountryCode = cleanText.startsWith('55') ? cleanText.substring(2) : cleanText;
+        // Verifica se tem pelo menos 10 dígitos (DDD + número)
+        if (cleanText.length < 10) return [];
         
-        // Verifica se tem pelo menos 8 dígitos para ser um número válido
-        if (withoutCountryCode.length < 8) return [];
-        
-        // Adiciona 55 de volta
-        const fullNumber = '55' + withoutCountryCode;
-        
-        // Retorna o número formatado
-        return [fullNumber];
+        return [cleanText];
     }
     
     formatNumberForDisplay(number) {
         // Remove tudo que não for número
         let cleaned = number.replace(/[^\d]/g, '');
         
-        // Se não começar com 55, adiciona
-        if (!cleaned.startsWith('55')) {
-            cleaned = '55' + cleaned;
-        }
-        
-        // Remove o 55 para exibição
-        cleaned = cleaned.substring(2);
-        
-        // Pega DDD e número
+        // Pega DDD (2 primeiros dígitos) e número
         const ddd = cleaned.substring(0, 2);
-        const rest = cleaned.substring(2);
+        const phoneNumber = cleaned.substring(2);
         
         // Formata como (xx) xxxxx-xxxx
-        return `(${ddd}) ${rest.substring(0, 5)}-${rest.substring(5)}`;
+        return `(${ddd}) ${phoneNumber.substring(0, 5)}-${phoneNumber.substring(5)}`;
     }
     
     async verifyNumber(number) {
@@ -432,10 +417,10 @@ class DomineVerificador {
             const warningMessage = `🚨 O número **${displayNumber}** NÃO é da equipe oficial da Domine.
 
 🔴 **Só confiem nesses números oficiais:**
-• (55) 99999-4667
-• (55) 99927-5228
-• (54) 99632-1933
-• (55) 99686-9527
+• (55) 9999-4667
+• (55) 9927-5228
+• (54) 9963-1933
+• (55) 9968-9527
 • (53) 3030-1955
 
 💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**
@@ -451,38 +436,18 @@ class DomineVerificador {
     isOfficialNumber(number) {
         // Lista de números oficiais em formato limpo (só números)
         const officialCleanNumbers = [
-            '5599994667',  // 55 9999-4667
-            '5599275228',  // 55 9927-5228
-            '54996321933', // 54 99632-1933
-            '55996869527', // 55 99686-9527
-            '5330301955'   // 53 3030-1955
-        ];
+            '559999-4667',  // 55 9999-4667
+            '559927-5228',  // 55 9927-5228
+            '549963-1933',  // 54 9963-1933
+            '559968-9527',  // 55 9968-9527
+            '533030-1955'   // 53 3030-1955
+        ].map(num => num.replace(/[^\d]/g, ''));
         
-        // Limpa o número recebido (remove tudo que não for dígito)
+        // Limpa o número recebido
         const cleanNumber = number.replace(/[^\d]/g, '');
         
-        // Se não começar com 55, adiciona
-        const normalizedNumber = cleanNumber.startsWith('55') ? cleanNumber : '55' + cleanNumber;
-        
         // Verifica se é um dos números oficiais
-        return officialCleanNumbers.some(official => {
-            // Verifica match exato
-            if (normalizedNumber === official) return true;
-            
-            // Se o número oficial não tem o 9º dígito, verifica sem ele
-            if (official.length === 10 && normalizedNumber.length === 11) {
-                const numberWithout9 = normalizedNumber.substring(0, 4) + normalizedNumber.substring(5);
-                return numberWithout9 === official;
-            }
-            
-            // Se o número oficial tem o 9º dígito, verifica com ele
-            if (official.length === 11 && normalizedNumber.length === 10) {
-                const officialWithout9 = official.substring(0, 4) + official.substring(5);
-                return normalizedNumber === officialWithout9;
-            }
-            
-            return false;
-        });
+        return officialCleanNumbers.some(official => cleanNumber === official);
     }
     
     async showTyping() {
@@ -561,14 +526,11 @@ class DomineVerificador {
         // Remove tudo que não for número
         const cleanNumber = number.replace(/[^\d]/g, '');
         
-        // Remove 55 se tiver
-        const withoutCountryCode = cleanNumber.startsWith('55') ? cleanNumber.substring(2) : cleanNumber;
-        
-        // Precisa ter pelo menos 8 dígitos (DDD + número)
-        if (withoutCountryCode.length < 8) return false;
+        // Precisa ter pelo menos 10 dígitos (DDD + número)
+        if (cleanNumber.length < 10) return false;
         
         // Pega o DDD (2 primeiros dígitos)
-        const ddd = withoutCountryCode.substring(0, 2);
+        const ddd = cleanNumber.substring(0, 2);
         
         // DDD precisa ser entre 11 e 99
         const dddNum = parseInt(ddd);
