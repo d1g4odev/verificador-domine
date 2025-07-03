@@ -244,14 +244,11 @@ class DomineVerificador {
         // Sanitizar a mensagem
         const sanitizedMessage = this.sanitizeInput(message);
         
-        this.addMessage(sanitizedMessage, 'user');
-        this.messageInput.value = '';
-        
-        await this.showTyping();
-        
+        // Extrai os números
         const numbers = this.extractNumbers(sanitizedMessage);
         
-        if (numbers.length === 0 || !this.hasValidDDD(numbers[0])) {
+        // Verifica se tem número e se tem DDD válido
+        if (numbers.length === 0) {
             this.showInputStatus(false);
             const helpMessage = `⚠️ Por favor, envie o número completo com DDD.
 
@@ -269,6 +266,12 @@ class DomineVerificador {
             this.addMessage(helpMessage, 'bot');
             return;
         }
+
+        // Adiciona a mensagem do usuário
+        this.addMessage(sanitizedMessage, 'user');
+        this.messageInput.value = '';
+        
+        await this.showTyping();
         
         let allValid = true;
         for (const number of numbers) {
@@ -380,10 +383,8 @@ class DomineVerificador {
         // Se começar com 55, remove para validação
         const withoutCountryCode = cleanText.startsWith('55') ? cleanText.substring(2) : cleanText;
         
-        // Verifica se tem DDD (pelo menos 2 dígitos no início)
-        if (withoutCountryCode.length < 10 || !/^[1-9][0-9]/.test(withoutCountryCode)) {
-            return [];
-        }
+        // Verifica se tem pelo menos 8 dígitos para ser um número válido
+        if (withoutCountryCode.length < 8) return [];
         
         // Adiciona 55 de volta e formata
         return ['55' + withoutCountryCode];
@@ -559,8 +560,8 @@ class DomineVerificador {
         // Remove 55 se tiver
         const withoutCountryCode = cleanNumber.startsWith('55') ? cleanNumber.substring(2) : cleanNumber;
         
-        // Precisa ter pelo menos 10 dígitos (DDD + número)
-        if (withoutCountryCode.length < 10) return false;
+        // Precisa ter pelo menos 8 dígitos (DDD + número)
+        if (withoutCountryCode.length < 8) return false;
         
         // Pega o DDD (2 primeiros dígitos)
         const ddd = withoutCountryCode.substring(0, 2);
