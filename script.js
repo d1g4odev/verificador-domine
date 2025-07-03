@@ -97,10 +97,10 @@ class DomineVerificador {
 📱 **Envie somente o número** e iremos te responder!
 
 📋 Formatos aceitos:
-• 55 99999-9999
-• +55 99999-9999  
+• 55 99999-9999 (DDD + número)
+• +55 99999-9999 (também aceito)
 • 99999-9999
-• (99) 99999-9999
+• (55) 99999-9999
 
 💡 Exemplo: 55 99999-4667`;
 
@@ -162,6 +162,15 @@ class DomineVerificador {
             };
         }
 
+        // Detectar códigos de país não brasileiros
+        const foreignCountryPattern = /\+(?!55)[1-9]\d{1,3}/;
+        if (foreignCountryPattern.test(input)) {
+            return {
+                isValid: false,
+                message: '🚨 **Código de país não brasileiro detectado!**\n\n⚠️ Este verificador é apenas para números brasileiros.\n\n📱 Envie números do Brasil (DDD + número) para verificação.'
+            };
+        }
+
         // Verificar caracteres suspeitos em excesso
         const suspiciousChars = /[<>{}[\]"'`\\|&;$%@]/g;
         const suspiciousCount = (input.match(suspiciousChars) || []).length;
@@ -211,7 +220,10 @@ class DomineVerificador {
         const isOfficial = this.isOfficialNumber(number);
         
         if (isOfficial) {
-            const officialMessage = `✅ O número **${number}** faz parte da equipe oficial da Domine a Consultoria de Alimentos.
+            // Limpar número para exibição (remover +55 se existir)
+            const displayNumber = this.formatNumberForDisplay(number);
+            
+            const officialMessage = `✅ O número **${displayNumber}** faz parte da equipe oficial da Domine a Consultoria de Alimentos.
 
 ⚠️ **Mesmo assim, só confie em:**
 • Mensagens enviadas nos grupos oficiais
@@ -223,7 +235,10 @@ class DomineVerificador {
             this.addMessage(officialMessage, 'bot');
             
         } else {
-            const warningMessage = `🚨 O número **${number}** NÃO é da equipe oficial da Domine.
+            // Limpar número para exibição (remover +55 se existir)
+            const displayNumber = this.formatNumberForDisplay(number);
+            
+            const warningMessage = `🚨 O número **${displayNumber}** NÃO é da equipe oficial da Domine.
 
 ❌ **NÃO faça:**
 • Não clique em links enviados por este número
@@ -292,6 +307,35 @@ class DomineVerificador {
             return '55' + '9' + number.substring(2);
         }
         return number;
+    }
+    
+    formatNumberForDisplay(number) {
+        // Remove +55 para exibição (todos são números brasileiros)
+        let cleaned = number.replace(/[\s()-]/g, '');
+        
+        // Se começar com +55, remover (só aceitar Brasil)
+        if (cleaned.startsWith('+55')) {
+            cleaned = cleaned.substring(3);
+        }
+        
+        // Garantir que é número brasileiro válido
+        if (!cleaned.startsWith('55') && cleaned.length >= 10) {
+            cleaned = '55' + cleaned;
+        }
+        
+        // Remover 55 do início para exibição limpa
+        if (cleaned.startsWith('55')) {
+            cleaned = cleaned.substring(2);
+        }
+        
+        // Formatar para exibição: 99999-4667
+        if (cleaned.length === 9) {
+            return `${cleaned.substring(0, 5)}-${cleaned.substring(5)}`;
+        } else if (cleaned.length === 8) {
+            return `${cleaned.substring(0, 4)}-${cleaned.substring(4)}`;
+        }
+        
+        return cleaned;
     }
     
     async showTyping() {

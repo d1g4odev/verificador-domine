@@ -30,12 +30,12 @@ Chatbot que simula uma conversa no WhatsApp para verificar se números de telefo
 
 ## 🎯 Formatos de Número Aceitos
 
-- +55 99999-9999
-- 55 99999-9999
-- 99999-9999
-- (99) 99999-9999
-- +54 99999-9999
-- +53 9999-9999
+- 55 99999-9999 (DDD + número - formato padrão)
+- +55 99999-9999 (também aceito)
+- 99999-9999 (número direto)
+- (55) 99999-9999
+
+**Nota:** Só aceita números brasileiros. O sistema reconhece automaticamente números com ou sem o 9º dígito.
 
 ## 🔧 Tecnologias Utilizadas
 

@@ -81,10 +81,11 @@ O sistema exibe mensagens específicas quando detecta conteúdo suspeito:
 ## ✅ Conteúdo Permitido
 
 O sistema aceita apenas:
-- 📱 **Números de telefone** em formatos válidos
+- 📱 **Números de telefone brasileiros** em formatos válidos
 - 🔢 **Dígitos, espaços, hífens, parênteses**
-- ➕ **Códigos de país** (+55, +54, +53)
+- ➕ **Código +55** (Brasil) - opcional
 - 📝 **Mensagens curtas** (até 100 caracteres)
+- 🇧🇷 **Apenas números do Brasil** - códigos estrangeiros são bloqueados
 
 ## 🔄 Processo de Validação
 
