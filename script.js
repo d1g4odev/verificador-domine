@@ -23,6 +23,30 @@ class DomineVerificador {
             }
         });
         
+        // Proteção contra colagem de conteúdo malicioso
+        this.messageInput.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const sanitizedText = this.sanitizeInput(pastedText);
+            
+            // Validar antes de colar
+            const securityCheck = this.validateInput(sanitizedText);
+            if (securityCheck.isValid) {
+                this.messageInput.value = sanitizedText;
+            } else {
+                this.addMessage('🚨 **Conteúdo colado rejeitado por segurança!**\n\n⚠️ Cole apenas números de telefone para verificação.', 'bot');
+            }
+        });
+        
+        // Filtrar input em tempo real
+        this.messageInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            const filtered = value.replace(/[<>{}[\]"'`\\|]/g, '');
+            if (value !== filtered) {
+                e.target.value = filtered;
+            }
+        });
+        
         setTimeout(() => {
             this.sendInitialMessage();
         }, 1000);
@@ -40,7 +64,7 @@ class DomineVerificador {
 📅 Só iremos abrir os carrinhos na **segunda-feira, dia 7**.
 🚫 Não comprem nada antes disso!
 
-💬 Para falar com nosso suporte oficial: **[CLIQUE AQUI](https://wa.me/555599994667)**`;
+💬 Para falar com nosso suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
 
         this.addMessage(welcomeMessage, 'bot');
     }
@@ -49,12 +73,23 @@ class DomineVerificador {
         const message = this.messageInput.value.trim();
         if (!message) return;
         
-        this.addMessage(message, 'user');
+        // Validação de segurança
+        const securityCheck = this.validateInput(message);
+        if (!securityCheck.isValid) {
+            this.addMessage(securityCheck.message, 'bot');
+            this.messageInput.value = '';
+            return;
+        }
+        
+        // Sanitizar a mensagem
+        const sanitizedMessage = this.sanitizeInput(message);
+        
+        this.addMessage(sanitizedMessage, 'user');
         this.messageInput.value = '';
         
         await this.showTyping();
         
-        const numbers = this.extractNumbers(message);
+        const numbers = this.extractNumbers(sanitizedMessage);
         
         if (numbers.length === 0) {
             const helpMessage = `⚠️ Aqui apenas verificamos os números para ver se você está seguro ou não.
@@ -78,6 +113,90 @@ class DomineVerificador {
         }
     }
     
+    validateInput(input) {
+        // Verificar tamanho máximo
+        if (input.length > 100) {
+            return {
+                isValid: false,
+                message: '🚨 **Mensagem muito longa!**\n\n⚠️ Por segurança, envie apenas números de telefone para verificação.'
+            };
+        }
+
+        // Detectar HTML/scripts maliciosos
+        const dangerousPatterns = [
+            /<script/i,
+            /<\/script>/i,
+            /javascript:/i,
+            /vbscript:/i,
+            /onload=/i,
+            /onerror=/i,
+            /onclick=/i,
+            /onmouseover=/i,
+            /<iframe/i,
+            /<object/i,
+            /<embed/i,
+            /<link/i,
+            /<meta/i,
+            /data:text\/html/i,
+            /eval\(/i,
+            /alert\(/i,
+            /confirm\(/i,
+            /prompt\(/i
+        ];
+
+        for (const pattern of dangerousPatterns) {
+            if (pattern.test(input)) {
+                return {
+                    isValid: false,
+                    message: '🚨 **Conteúdo suspeito detectado!**\n\n⚠️ Por segurança, envie apenas números de telefone para verificação.\n\n🔒 Não são permitidos scripts, links ou códigos.'
+                };
+            }
+        }
+
+        // Detectar URLs suspeitas
+        const urlPattern = /(https?:\/\/|www\.|\.com|\.br|\.org|\.net|bit\.ly|tinyurl|t\.co)/i;
+        if (urlPattern.test(input)) {
+            return {
+                isValid: false,
+                message: '🚨 **Links não são permitidos!**\n\n⚠️ Por segurança, envie apenas números de telefone para verificação.\n\n📱 Para contato oficial use: **[CLIQUE AQUI](https://wa.me/+555596869527)**'
+            };
+        }
+
+        // Verificar caracteres suspeitos em excesso
+        const suspiciousChars = /[<>{}[\]"'`\\|&;$%@]/g;
+        const suspiciousCount = (input.match(suspiciousChars) || []).length;
+        if (suspiciousCount > 3) {
+            return {
+                isValid: false,
+                message: '🚨 **Caracteres suspeitos detectados!**\n\n⚠️ Por segurança, envie apenas números de telefone para verificação.'
+            };
+        }
+
+        return { isValid: true };
+    }
+
+    sanitizeInput(input) {
+        // Remover tags HTML
+        let sanitized = input.replace(/<[^>]*>/g, '');
+        
+        // Escapar caracteres especiais
+        sanitized = sanitized
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;')
+            .replace(/\//g, '&#x2F;');
+        
+        // Remover caracteres de controle
+        sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, '');
+        
+        // Limitar tamanho
+        sanitized = sanitized.substring(0, 100);
+        
+        return sanitized.trim();
+    }
+
     extractNumbers(text) {
         const phoneRegex = /(\+?\d{1,3}[\s-]?)?\(?\d{2,5}\)?[\s-]?\d{4,5}[\s-]?\d{4}/g;
         const matches = text.match(phoneRegex);
@@ -121,7 +240,7 @@ class DomineVerificador {
 
 ⚠️ Se tiver dúvidas, entre em contato apenas pelos números oficiais acima!
 
-💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/555599994667)**`;
+💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
 
             this.addMessage(warningMessage, 'bot');
         }
