@@ -403,7 +403,7 @@ class DomineVerificador {
             await this.addMessage(officialMessage, 'bot', true);
             
             // Mensagem extra de segurança após delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 5000));
             
             const securityReminder = `🛡️ **DICAS DE SEGURANÇA:**
 
@@ -426,7 +426,7 @@ class DomineVerificador {
 • Desconfie de promoções muito vantajosas
 • Salve os números oficiais na sua agenda
 
-⚠️ **ATENÇÃO:** A Domine NUNCA solicita pagamentos por WhatsApp ou fora da HOTMART!`;
+⚠️ **ATENÇÃO:** A Domine solicita pagamentos APENAS pelos números oficiais via WhatsApp, mas SEMPRE pela plataforma HOTMART!`;
 
             this.addMessage(securityReminder, 'bot');
             
@@ -456,7 +456,7 @@ class DomineVerificador {
             await this.addMessage(warningMessage, 'bot');
             
             // Mensagem extra de segurança após delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 5000));
             
             const fraudAlert = `🚨 **ALERTA DE GOLPES:**
 
