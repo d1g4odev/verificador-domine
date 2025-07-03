@@ -219,6 +219,11 @@ class DomineVerificador {
 
 📱 Envie o número abaixo que você acha suspeito para verificarmos se faz parte da nossa equipe oficial.
 
+⚠️ **ATENÇÃO IMPORTANTE:**
+❌ NÃO façam nenhum tipo de compra agora, pois ainda não abrimos os carrinhos!
+📅 Só iremos abrir os carrinhos na **segunda-feira, dia 7**.
+🚫 Não comprem nada antes disso!
+
 💬 Para falar com nosso suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
 
         this.addMessage(welcomeMessage, 'bot');
@@ -397,6 +402,34 @@ class DomineVerificador {
 
             await this.addMessage(officialMessage, 'bot', true);
             
+            // Mensagem extra de segurança após delay
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            const securityReminder = `🛡️ **DICAS DE SEGURANÇA:**
+
+❌ Nunca compartilhe:
+• Dados pessoais
+• Senhas ou códigos
+• Fotos de documentos
+• Comprovantes bancários
+
+💳 **PAGAMENTOS:**
+• SOMENTE pela plataforma HOTMART
+• NUNCA faça PIX direto
+• NUNCA pague por outros meios
+• IGNORE links de checkout externos
+• DESCONFIE de outras plataformas
+
+✅ **Boas práticas:**
+• Verifique sempre o número antes de interagir
+• Não clique em links suspeitos
+• Desconfie de promoções muito vantajosas
+• Salve os números oficiais na sua agenda
+
+⚠️ **ATENÇÃO:** A Domine solicita pagamentos APENAS pelos números oficiais via WhatsApp, mas SEMPRE pela plataforma HOTMART!`;
+
+            this.addMessage(securityReminder, 'bot');
+            
         } else {
             // Limpar número para exibição (remover +55 se existir)
             const displayNumber = this.formatNumberForDisplay(number);
@@ -416,8 +449,6 @@ class DomineVerificador {
 • 55 99686-9527
 • 53 3030-1955
 
-⚠️ A Domine solicita pagamentos APENAS pelos números oficiais via WhatsApp, mas SEMPRE pela plataforma HOTMART!
-
 ⚠️ Se tiver dúvidas, entre em contato apenas pelos números oficiais acima!
 
 💬 Falar com suporte oficial: **[CLIQUE AQUI](https://wa.me/+555596869527)**`;
@@ -425,7 +456,38 @@ class DomineVerificador {
             await this.addMessage(warningMessage, 'bot');
             
             // Mensagem extra de segurança após delay
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            const fraudAlert = `🚨 **ALERTA DE GOLPES:**
+
+⚠️ Fique atento a tentativas comuns de fraude:
+
+❌ **Sinais de golpe:**
+• Promoções muito abaixo do mercado
+• Pressão para decisão rápida
+• Pedidos de PIX ou pagamento direto
+• Histórias emotivas ou urgentes
+• Links para sites de pagamento
+
+💳 **IMPORTANTE:**
+• A Domine usa APENAS a HOTMART
+• NÃO aceitamos PIX direto
+• NÃO usamos outras plataformas
+• NÃO enviamos links de pagamento
+• TODOS os pagamentos são pela HOTMART
+
+✅ **Como se proteger:**
+• Sempre verifique a fonte
+• Não tome decisões por impulso
+• Consulte os canais oficiais
+• Reporte números suspeitos
+• Pague SOMENTE pela HOTMART
+
+🔒 **Proteja-se:** Se recebeu pedido de pagamento fora da HOTMART, é golpe! Denuncie o número.`
+
+
+
+            this.addMessage(fraudAlert, 'bot');
         }
         
         await new Promise(resolve => setTimeout(resolve, 500));
