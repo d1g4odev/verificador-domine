@@ -390,7 +390,9 @@ class DomineVerificador {
         this.addToHistory(displayNumber, isOfficial);
         
         if (isOfficial) {
-            const officialMessage = `✅ O número **${displayNumber}** faz parte da equipe oficial da Domine a Consultoria de Alimentos.`;
+            const officialMessage = `✅ O número **${displayNumber}** faz parte da equipe oficial da Domine a Consultoria de Alimentos.
+
+⚠️ A Domine solicita pagamentos APENAS pelos números oficiais via WhatsApp, mas SEMPRE pela plataforma HOTMART!`;
 
             await this.addMessage(officialMessage, 'bot', true);
             
