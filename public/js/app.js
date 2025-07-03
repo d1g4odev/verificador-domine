@@ -1,8 +1,8 @@
 class DomineVerificador {
     constructor() {
         this.officialNumbers = [
-            '55 99999-4667',
-            '55 99927-5228', 
+            '55 9999-4667',
+            '55 9927-5228', 
             '54 99632-1933',
             '55 99686-9527',
             '53 3030-1955'
@@ -402,7 +402,11 @@ class DomineVerificador {
         cleaned = cleaned.substring(2);
         
         // Formata com hífen
-        return cleaned.replace(/(\d{5})(\d{4})/, '$1-$2');
+        if (cleaned.length === 9) { // Número sem 9º dígito
+            return cleaned.replace(/(\d{4})(\d{4})/, '$1-$2');
+        } else { // Número com 9º dígito
+            return cleaned.replace(/(\d{5})(\d{4})/, '$1-$2');
+        }
     }
     
     async verifyNumber(number) {
@@ -442,31 +446,34 @@ class DomineVerificador {
     isOfficialNumber(number) {
         // Lista de números oficiais em formato limpo (só números)
         const officialCleanNumbers = [
-            '5599999-4667',
-            '5599927-5228', 
-            '5499632-1933',
-            '5599686-9527',
-            '5330301955'
-        ].map(num => num.replace(/[^\d]/g, ''));
+            '5599994667',  // 55 9999-4667
+            '5599275228',  // 55 9927-5228
+            '54996321933', // 54 99632-1933
+            '55996869527', // 55 99686-9527
+            '5330301955'   // 53 3030-1955
+        ];
         
-        // Limpa o número recebido
+        // Limpa o número recebido (remove tudo que não for dígito)
         const cleanNumber = number.replace(/[^\d]/g, '');
+        
+        // Se não começar com 55, adiciona
+        const normalizedNumber = cleanNumber.startsWith('55') ? cleanNumber : '55' + cleanNumber;
         
         // Verifica se é um dos números oficiais
         return officialCleanNumbers.some(official => {
             // Verifica match exato
-            if (cleanNumber === official) return true;
+            if (normalizedNumber === official) return true;
             
             // Se o número oficial não tem o 9º dígito, verifica sem ele
-            if (official.length === 10 && cleanNumber.length === 11) {
-                const numberWithout9 = cleanNumber.substring(0, 4) + cleanNumber.substring(5);
+            if (official.length === 10 && normalizedNumber.length === 11) {
+                const numberWithout9 = normalizedNumber.substring(0, 4) + normalizedNumber.substring(5);
                 return numberWithout9 === official;
             }
             
             // Se o número oficial tem o 9º dígito, verifica com ele
-            if (official.length === 11 && cleanNumber.length === 10) {
+            if (official.length === 11 && normalizedNumber.length === 10) {
                 const officialWithout9 = official.substring(0, 4) + official.substring(5);
-                return cleanNumber === officialWithout9;
+                return normalizedNumber === officialWithout9;
             }
             
             return false;
