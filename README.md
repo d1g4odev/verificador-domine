@@ -1,18 +1,18 @@
-# 📱 Verificador de Números - Domine Consultoria
+# Verificador de Números - Domine Consultoria
 
-Chatbot que simula uma conversa no WhatsApp para verificar se números de telefone fazem parte da equipe oficial da Domine a Consultoria de Alimentos.
+Sistema de verificação de números oficiais da Domine Consultoria de Alimentos.
 
-## 🚀 Funcionalidades
+## Funcionalidades
 
-- ✅ Verificação automática de números oficiais
-- 📱 Interface idêntica ao WhatsApp
-- 🔍 Reconhecimento inteligente de números em diferentes formatos
-- ⚠️ Alertas de segurança para números não oficiais
-- 📅 Aviso sobre abertura dos carrinhos (segunda-feira, dia 7)
-- 💻 Totalmente responsivo e focado em mobile
-- 🎭 Simulação de digitação realista
+- Verificação automática de números oficiais
+- Interface similar ao WhatsApp
+- Reconhecimento inteligente de números em diferentes formatos
+- Alertas de segurança para números não oficiais
+- Histórico de verificações na sessão
+- Totalmente responsivo e focado em mobile
+- Instalável como PWA (Progressive Web App)
 
-## 📋 Números Oficiais da Equipe
+## Números Oficiais da Equipe
 
 - 55 99999-4667
 - 55 99927-5228  
@@ -20,82 +20,80 @@ Chatbot que simula uma conversa no WhatsApp para verificar se números de telefo
 - 55 99686-9527
 - 53 3030-1955
 
-## 🛠️ Como Usar
+## Estrutura do Projeto
 
-1. Abra o arquivo `index.html` no navegador
-2. O chatbot enviará automaticamente uma mensagem de boas-vindas
-3. Digite ou cole o número suspeito no campo de entrada
-4. Aguarde a verificação automática
-5. Receba alertas específicos sobre o status do número
+```
+verificador-domine/
+├── src/
+│   ├── js/
+│   │   └── app.js
+│   ├── css/
+│   │   └── style.css
+│   └── assets/
+│       └── images/
+├── public/
+│   ├── index.html
+│   ├── manifest.json
+│   └── sw.js
+└── docs/
+    └── SECURITY.md
+```
 
-## 🎯 Formatos de Número Aceitos
+## Como Usar
+
+1. Abra o verificador no navegador
+2. Digite ou cole o número suspeito
+3. Aguarde a verificação automática
+4. Receba o resultado com instruções de segurança
+
+## Formatos de Número Aceitos
 
 - 55 99999-9999 (DDD + número - formato padrão)
 - +55 99999-9999 (também aceito)
 - 99999-9999 (número direto)
 - (55) 99999-9999
 
-**Nota:** Só aceita números brasileiros. O sistema reconhece automaticamente números com ou sem o 9º dígito.
+**Nota:** Sistema aceita apenas números brasileiros e reconhece automaticamente números com ou sem o 9º dígito.
 
-## 🔧 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - HTML5 semântico
-- CSS3 com Flexbox e animações
-- JavaScript ES6+ com classes
+- CSS3 com Flexbox
+- JavaScript ES6+
 - Design responsivo Mobile-First
-- Regex para extração de números
+- PWA para instalação
 
-## 📱 Compatibilidade Mobile
-
-O projeto foi desenvolvido especificamente para dispositivos móveis, garantindo:
+## Compatibilidade Mobile
 
 - Interface otimizada para telas pequenas
-- Toques responsivos
+- Controles adaptados para toque
 - Scrolling suave
 - Tipografia legível
-- Controles acessíveis
+- Performance otimizada
 
-## 🎨 Características da Interface
+## Características
 
-- Cores oficiais do WhatsApp (#128C7E, #075E54)
-- Bolhas de mensagem realistas
-- Indicador de digitação animado
-- Horários das mensagens
-- Background texturizado
-- Animações suaves
+- Design similar ao WhatsApp
+- Mensagens de segurança detalhadas
+- Validação de números em tempo real
+- Feedback visual imediato
+- Suporte a leitores de tela
 
-## ⚡ Performance
+## Performance
 
 - Carregamento instantâneo
-- Animações 60fps
-- Código otimizado
+- Animações otimizadas
+- Cache inteligente
 - Zero dependências externas
 
-## 🚀 Deploy
+## Segurança
 
-### GitHub Repository
-📁 **Repositório oficial:** [verificador-domine](https://github.com/d1g4odev/verificador-domine)
+- Validação de entrada
+- Sanitização de dados
+- Proteção contra XSS
+- Headers de segurança
+- Alertas de golpes
 
-### Como fazer deploy:
+## Licença
 
-1. **Enviar para GitHub:**
-   ```bash
-   # Execute o script
-   push-to-github.bat
-   
-   # Ou comandos manuais:
-   git init
-   git add .
-   git commit -m "Verificador de números Domine"
-   git remote add origin https://github.com/d1g4odev/verificador-domine.git
-   git push -u origin main
-   ```
-
-2. **Deploy na Vercel:**
-   - Acesse [vercel.com](https://vercel.com)
-   - Clique em "New Project"
-   - Selecione "verificador-domine"
-   - Deploy automático!
-
-### URL do Projeto
-🌐 Em breve disponível em: `verificador-domine.vercel.app` 
+Proprietário - Domine Consultoria de Alimentos 
